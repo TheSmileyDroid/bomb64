@@ -46,6 +46,9 @@ void cameraMovementKeyDown(SDL_Keysym *key) {
   case SDLK_d:
     right = true;
     break;
+  case SDLK_p:
+    printf("x: %f, y: %f, z: %f\n", camera_pos[0], camera_pos[1], camera_pos[2]);
+    break; 
   default:
     break;
   }
@@ -71,7 +74,7 @@ void cameraMovementKeyUp(SDL_Keysym *key) {
 }
 
 void cameraUpdate(void) {
-  float speed = 0.5f * delta;
+  float speed = 0.05f * delta;
   if (forward) {
     camera_pos[0] += camera_dir[0] * speed;
     camera_pos[1] += camera_dir[1] * speed;
