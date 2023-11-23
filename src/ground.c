@@ -2,5 +2,5 @@
 
 void ground(void) {
   glColor3f(0.2f, 0.5f, 0.2f);
-  glutSolidCube(100.0f);
+  glutSolidCube(10.0f);
 }
