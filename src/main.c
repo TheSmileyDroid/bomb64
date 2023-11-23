@@ -54,7 +54,7 @@ bool initGL(void) {
 
   glMatrixMode(GL_PROJECTION); // define que a matrix é a de projeção
   glLoadIdentity();            // carrega a matrix de identidade
-  gluPerspective(90.0, 1.0, 1.0, 1024.0); // define a projeção perspectiva
+  gluPerspective(90.0, 1.0, 0.1, 1024.0); // define a projeção perspectiva
   glViewport(0, 0, windowWidth, windowHeight); // define o viewport
 
   error = glGetError();
@@ -63,11 +63,6 @@ bool initGL(void) {
     success = false;
   }
 
-  error = glGetError();
-  if (error != GL_NO_ERROR) {
-    printf("Error initializing OpenGL! %s\n", gluErrorString(error));
-    success = false;
-  }
   glClearColor(0.5f, 0.5f, 0.9f, 0.f);
 
   error = glGetError();
@@ -86,7 +81,7 @@ bool init(void) {
     printf("SDL could not initialize! SDL Error: %s\n", SDL_GetError());
     success = false;
   } else {
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 
     gWindow = SDL_CreateWindow(
         "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -147,154 +142,154 @@ static void process_events(void) {
   }
 }
 
-void cube(void) {
-  GLfloat shininess;   // Coeficiente de reflexão da luz ambiente k_a
-  GLfloat diffuse[4];  // Coeficiente de reflexão difusa k_d
-  GLfloat specular[4]; // Coeficiente de reflexão especular k_s
+void cube(){
+    GLfloat shininess;   //Coeficiente de reflexão da luz ambiente k_a
+    GLfloat diffuse[4];  //Coeficiente de reflexão difusa k_d
+    GLfloat specular[4]; //Coeficiente de reflexão especular k_s
 
-  shininess = 65.0;
-  diffuse[0] = 0.65;
-  diffuse[1] = 0.0;
-  diffuse[2] = 0.0;
-  diffuse[3] = 1.0;
-  specular[0] = 1.0;
-  specular[1] = 1.0;
-  specular[2] = 1.0;
-  specular[3] = 1.0;
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-  glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+    shininess = 65.0;
+    diffuse[0] = 0.65;
+    diffuse[1] = 0.0;
+    diffuse[2] = 0.0;
+    diffuse[3] = 1.0;
+    specular[0] = 1.0;
+    specular[1] = 1.0;
+    specular[2] = 1.0;
+    specular[3] = 1.0;
+    glMaterialfv(GL_FRONT,GL_AMBIENT_AND_DIFFUSE,diffuse);
+    glMaterialfv(GL_FRONT,GL_SPECULAR,specular);
+    glMaterialf(GL_FRONT,GL_SHININESS,shininess);
 
-  glBegin(GL_POLYGON);
-  glNormal3f(-10.0, -10.0, 10.0);
-  glVertex3f(-10.0, -10.0, 10.0);
-  glNormal3f(10.0, -10.0, 10.0);
-  glVertex3f(10.0, -10.0, 10.0);
-  glNormal3f(10.0, 10.0, 10.0);
-  glVertex3f(10.0, 10.0, 10.0);
-  glNormal3f(-10.0, 10.0, 10.0);
-  glVertex3f(-10.0, 10.0, 10.0);
-  glEnd();
+    glBegin(GL_POLYGON);
+        glNormal3f(-0.5,-0.5,0.5);
+        glVertex3f(-0.5,-0.5,0.5);
+        glNormal3f(0.5,-0.5,0.5);
+        glVertex3f(0.5,-0.5,0.5);
+        glNormal3f(0.5,0.5,0.5);
+        glVertex3f(0.5,0.5,0.5);
+        glNormal3f(-0.5,0.5,0.5);
+        glVertex3f(-0.5,0.5,0.5);
+    glEnd();
 
-  shininess = 65.0;
-  diffuse[0] = 0.0;
-  diffuse[1] = 0.65;
-  diffuse[2] = 0.0;
-  diffuse[3] = 1.0;
-  specular[0] = 1.0;
-  specular[1] = 1.0;
-  specular[2] = 1.0;
-  specular[3] = 1.0;
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-  glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+    shininess = 65.0;
+    diffuse[0] = 0.0;
+    diffuse[1] = 0.65;
+    diffuse[2] = 0.0;
+    diffuse[3] = 1.0;
+    specular[0] = 1.0;
+    specular[1] = 1.0;
+    specular[2] = 1.0;
+    specular[3] = 1.0;
+    glMaterialfv(GL_FRONT,GL_AMBIENT_AND_DIFFUSE,diffuse);
+    glMaterialfv(GL_FRONT,GL_SPECULAR,specular);
+    glMaterialf(GL_FRONT,GL_SHININESS,shininess);
 
-  glBegin(GL_POLYGON);
-  glNormal3f(10.0, 10.0, 10.0);
-  glVertex3f(10.0, 10.0, 10.0);
-  glNormal3f(10.0, -10.0, 10.0);
-  glVertex3f(10.0, -10.0, 10.0);
-  glNormal3f(10.0, -10.0, -10.0);
-  glVertex3f(10.0, -10.0, -10.0);
-  glNormal3f(10.0, 10.0, -10.0);
-  glVertex3f(10.0, 10.0, -10.0);
-  glEnd();
+    glBegin(GL_POLYGON);
+        glNormal3f(0.5,0.5,0.5);
+        glVertex3f(0.5,0.5,0.5);
+        glNormal3f(0.5,-0.5,0.5);
+        glVertex3f(0.5,-0.5,0.5);
+        glNormal3f(0.5,-0.5,-0.5);
+        glVertex3f(0.5,-0.5,-0.5);
+        glNormal3f(0.5,0.5,-0.5);
+        glVertex3f(0.5,0.5,-0.5);
+    glEnd();
 
-  shininess = 65.0;
-  diffuse[0] = 0.0;
-  diffuse[1] = 0.0;
-  diffuse[2] = 0.65;
-  diffuse[3] = 1.0;
-  specular[0] = 1.0;
-  specular[1] = 1.0;
-  specular[2] = 1.0;
-  specular[3] = 1.0;
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-  glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+    shininess = 65.0;
+    diffuse[0] = 0.0;
+    diffuse[1] = 0.0;
+    diffuse[2] = 0.65;
+    diffuse[3] = 1.0;
+    specular[0] = 1.0;
+    specular[1] = 1.0;
+    specular[2] = 1.0;
+    specular[3] = 1.0;
+    glMaterialfv(GL_FRONT,GL_AMBIENT_AND_DIFFUSE,diffuse);
+    glMaterialfv(GL_FRONT,GL_SPECULAR,specular);
+    glMaterialf(GL_FRONT,GL_SHININESS,shininess);
 
-  glBegin(GL_POLYGON);
-  glNormal3f(10.0, -10.0, 10.0);
-  glVertex3f(10.0, -10.0, 10.0);
-  glNormal3f(-10.0, -10.0, 10.0);
-  glVertex3f(-10.0, -10.0, 10.0);
-  glNormal3f(-10.0, -10.0, -10.0);
-  glVertex3f(-10.0, -10.0, -10.0);
-  glNormal3f(10.0, -10.0, -10.0);
-  glVertex3f(10.0, -10.0, -10.0);
-  glEnd();
+    glBegin(GL_POLYGON);
+        glNormal3f(0.5,-0.5,0.5);
+        glVertex3f(0.5,-0.5,0.5);
+        glNormal3f(-0.5,-0.5,0.5);
+        glVertex3f(-0.5,-0.5,0.5);
+        glNormal3f(-0.5,-0.5,-0.5);
+        glVertex3f(-0.5,-0.5,-0.5);
+        glNormal3f(0.5,-0.5,-0.5);
+        glVertex3f(0.5,-0.5,-0.5);
+    glEnd();
 
-  shininess = 65.0;
-  diffuse[0] = 0.65;
-  diffuse[1] = 0.65;
-  diffuse[2] = 0.0;
-  diffuse[3] = 1.0;
-  specular[0] = 1.0;
-  specular[1] = 1.0;
-  specular[2] = 1.0;
-  specular[3] = 1.0;
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-  glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+    shininess = 65.0;
+    diffuse[0] = 0.65;
+    diffuse[1] = 0.65;
+    diffuse[2] = 0.0;
+    diffuse[3] = 1.0;
+    specular[0] = 1.0;
+    specular[1] = 1.0;
+    specular[2] = 1.0;
+    specular[3] = 1.0;
+    glMaterialfv(GL_FRONT,GL_AMBIENT_AND_DIFFUSE,diffuse);
+    glMaterialfv(GL_FRONT,GL_SPECULAR,specular);
+    glMaterialf(GL_FRONT,GL_SHININESS,shininess);
 
-  glBegin(GL_POLYGON);
-  glNormal3f(-10.0, 10.0, 10.0);
-  glVertex3f(-10.0, 10.0, 10.0);
-  glNormal3f(10.0, 10.0, 10.0);
-  glVertex3f(10.0, 10.0, 10.0);
-  glNormal3f(10.0, 10.0, -10.0);
-  glVertex3f(10.0, 10.0, -10.0);
-  glNormal3f(-10.0, 10.0, -10.0);
-  glVertex3f(-10.0, 10.0, -10.0);
-  glEnd();
+    glBegin(GL_POLYGON);
+        glNormal3f(-0.5,0.5,0.5);
+        glVertex3f(-0.5,0.5,0.5);
+        glNormal3f(0.5,0.5,0.5);
+        glVertex3f(0.5,0.5,0.5);
+        glNormal3f(0.5,0.5,-0.5);
+        glVertex3f(0.5,0.5,-0.5);
+        glNormal3f(-0.5,0.5,-0.5);
+        glVertex3f(-0.5,0.5,-0.5);
+    glEnd();
 
-  shininess = 65.0;
-  diffuse[0] = 0.0;
-  diffuse[1] = 0.65;
-  diffuse[2] = 0.65;
-  diffuse[3] = 1.0;
-  specular[0] = 1.0;
-  specular[1] = 1.0;
-  specular[2] = 1.0;
-  specular[3] = 1.0;
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-  glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+    shininess = 65.0;
+    diffuse[0] = 0.0;
+    diffuse[1] = 0.65;
+    diffuse[2] = 0.65;
+    diffuse[3] = 1.0;
+    specular[0] = 1.0;
+    specular[1] = 1.0;
+    specular[2] = 1.0;
+    specular[3] = 1.0;
+    glMaterialfv(GL_FRONT,GL_AMBIENT_AND_DIFFUSE,diffuse);
+    glMaterialfv(GL_FRONT,GL_SPECULAR,specular);
+    glMaterialf(GL_FRONT,GL_SHININESS,shininess);
 
-  glBegin(GL_POLYGON);
-  glNormal3f(-10.0, -10.0, -10.0);
-  glVertex3f(-10.0, -10.0, -10.0);
-  glNormal3f(-10.0, 10.0, -10.0);
-  glVertex3f(-10.0, 10.0, -10.0);
-  glNormal3f(10.0, 10.0, -10.0);
-  glVertex3f(10.0, 10.0, -10.0);
-  glNormal3f(10.0, -10.0, -10.0);
-  glVertex3f(10.0, -10.0, -10.0);
-  glEnd();
+    glBegin(GL_POLYGON);
+        glNormal3f(-0.5,-0.5,-0.5);
+        glVertex3f(-0.5,-0.5,-0.5);
+        glNormal3f(-0.5,0.5,-0.5);
+        glVertex3f(-0.5,0.5,-0.5);
+        glNormal3f(0.5,0.5,-0.5);
+        glVertex3f(0.5,0.5,-0.5);
+        glNormal3f(0.5,-0.5,-0.5);
+        glVertex3f(0.5,-0.5,-0.5);
+    glEnd();
 
-  shininess = 65.0;
-  diffuse[0] = 0.65;
-  diffuse[1] = 0.65;
-  diffuse[2] = 0.65;
-  diffuse[3] = 1.0;
-  specular[0] = 1.0;
-  specular[1] = 1.0;
-  specular[2] = 1.0;
-  specular[3] = 1.0;
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-  glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+    shininess = 65.0;
+    diffuse[0] = 0.65;
+    diffuse[1] = 0.65;
+    diffuse[2] = 0.65;
+    diffuse[3] = 1.0;
+    specular[0] = 1.0;
+    specular[1] = 1.0;
+    specular[2] = 1.0;
+    specular[3] = 1.0;
+    glMaterialfv(GL_FRONT,GL_AMBIENT_AND_DIFFUSE,diffuse);
+    glMaterialfv(GL_FRONT,GL_SPECULAR,specular);
+    glMaterialf(GL_FRONT,GL_SHININESS,shininess);
 
-  glBegin(GL_POLYGON);
-  glNormal3f(-10.0, 10.0, -10.0);
-  glVertex3f(-10.0, 10.0, -10.0);
-  glNormal3f(-10.0, -10.0, -10.0);
-  glVertex3f(-10.0, -10.0, -10.0);
-  glNormal3f(-10.0, -10.0, 10.0);
-  glVertex3f(-10.0, -10.0, 10.0);
-  glNormal3f(-10.0, 10.0, 10.0);
-  glVertex3f(-10.0, 10.0, 10.0);
-  glEnd();
+    glBegin(GL_POLYGON);
+        glNormal3f(-0.5,0.5,-0.5);
+        glVertex3f(-0.5,0.5,-0.5);
+        glNormal3f(-0.5,-0.5,-0.5);
+        glVertex3f(-0.5,-0.5,-0.5);
+        glNormal3f(-0.5,-0.5,0.5);
+        glVertex3f(-0.5,-0.5,0.5);
+        glNormal3f(-0.5,0.5,0.5);
+        glVertex3f(-0.5,0.5,0.5);
+    glEnd();
 }
 
 void displayFunc(void) {
