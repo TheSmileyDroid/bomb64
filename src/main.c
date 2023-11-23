@@ -21,7 +21,7 @@
 #include "../include/ground.h"
 #include "../include/lighting.h"
 
-GLfloat light0_pos[] = {0.0f, 0.0f, 50.0f, 1.0f};
+GLfloat light0_pos[] = {10.0f, 10.0f, 60.0f, 1.0f};
 GLfloat white[] = {1.0f, 1.0f, 1.0f, 1.0f};
 GLfloat black[] = {0.0f, 0.2f, 0.0f, 1.0f};
 
@@ -299,8 +299,16 @@ void displayFunc(void) {
   glLoadIdentity();
 
   camera();
-
+  
+  glPushMatrix();
+  glTranslatef(0.0,-10.0,0.0);
+  ground();
+  glPopMatrix();
+  
+  glPushMatrix();
+  glTranslatef(0.0,0.0,5.0);
   cube();
+  glPopMatrix();
 
   lighting();
 
