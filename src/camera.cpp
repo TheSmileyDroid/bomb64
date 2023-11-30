@@ -17,6 +17,8 @@ bool forward = false;
 bool backward = false;
 bool left = false;
 bool right = false;
+bool up = false;
+bool down = false;
 
 void cameraRight(void) {
   camera_right[0] = camera_up[1] * camera_dir[2] - camera_up[2] * camera_dir[1];
@@ -46,9 +48,12 @@ void cameraMovementKeyDown(SDL_Keysym *key) {
   case SDLK_d:
     right = true;
     break;
-  case SDLK_p:
-    printf("x: %f, y: %f, z: %f\n", camera_pos[0], camera_pos[1], camera_pos[2]);
-    break; 
+  case SDLK_LSHIFT:
+    down = true;
+    break;
+  case SDLK_SPACE:
+    up = true;
+    break;
   default:
     break;
   }
@@ -68,13 +73,19 @@ void cameraMovementKeyUp(SDL_Keysym *key) {
   case SDLK_d:
     right = false;
     break;
+  case SDLK_LSHIFT:
+    down = false;
+    break;
+  case SDLK_SPACE:
+    up = false;
+    break;
   default:
     break;
   }
 }
 
 void cameraUpdate(void) {
-  float speed = 0.05f * delta;
+  float speed = 0.01f * delta;
   if (forward) {
     camera_pos[0] += camera_dir[0] * speed;
     camera_pos[1] += camera_dir[1] * speed;
@@ -94,6 +105,16 @@ void cameraUpdate(void) {
     camera_pos[0] -= camera_right[0] * speed;
     camera_pos[1] -= camera_right[1] * speed;
     camera_pos[2] -= camera_right[2] * speed;
+  }
+  if (up) {
+    camera_pos[0] += camera_up[0] * speed;
+    camera_pos[1] += camera_up[1] * speed;
+    camera_pos[2] += camera_up[2] * speed;
+  }
+  if (down) {
+    camera_pos[0] -= camera_up[0] * speed;
+    camera_pos[1] -= camera_up[1] * speed;
+    camera_pos[2] -= camera_up[2] * speed;
   }
 }
 
