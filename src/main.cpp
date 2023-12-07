@@ -163,6 +163,20 @@ void displayFunc(void) {
 
   glPushMatrix();
   glTranslatef(0.0, -10.0, 0.0);
+  GLfloat shininess = 50.0;
+  GLfloat diffuse[4];
+  GLfloat specular[4];
+  diffuse[0] = 0.2;
+  diffuse[1] = 0.2;
+  diffuse[2] = 0.2;
+  diffuse[3] = 1.0;
+  specular[0] = 1.0;
+  specular[1] = 1.0;
+  specular[2] = 1.0;
+  specular[3] = 1.0;
+  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
+	glMaterialf(GL_FRONT, GL_SHININESS, shininess);
   ground();
   glPopMatrix();
 

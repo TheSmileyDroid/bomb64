@@ -7,21 +7,32 @@ Player::Player(void) {
 }
 
 void Player::draw(void) {
-  GLfloat shininess = 50.0;
+  GLfloat shininess = materials[0].shininess;
   GLfloat diffuse[4];
   GLfloat specular[4];
-  diffuse[0] = 0.2;
-  diffuse[1] = 0.2;
-  diffuse[2] = 0.2;
+  diffuse[0] = materials[0].diffuse[0];
+  diffuse[1] = materials[0].diffuse[1];
+  diffuse[2] = materials[0].diffuse[2];
   diffuse[3] = 1.0;
-  specular[0] = 1.0;
-  specular[1] = 1.0;
-  specular[2] = 1.0;
+  specular[0] = materials[0].specular[0];
+  specular[1] = materials[0].specular[1];
+  specular[2] = materials[0].specular[2];
   specular[3] = 1.0;
 
   glBegin(GL_TRIANGLES);
   for (auto triangle = triangles.begin(); triangle != triangles.end();
        ++triangle) {
+	  GLfloat shininess = materials[triangle->material].shininess;
+	  GLfloat diffuse[4];
+	  GLfloat specular[4];
+	  diffuse[0] = materials[triangle->material].diffuse[0];
+	  diffuse[1] = materials[triangle->material].diffuse[1];
+	  diffuse[2] = materials[triangle->material].diffuse[2];
+	  diffuse[3] = 1.0;
+	  specular[0] = materials[triangle->material].specular[0];
+	  specular[1] = materials[triangle->material].specular[1];
+	  specular[2] = materials[triangle->material].specular[2];
+	  specular[3] = 1.0;
     glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse);
     glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
     glMaterialf(GL_FRONT, GL_SHININESS, shininess);

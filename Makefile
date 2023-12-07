@@ -1,7 +1,7 @@
 # ls -d ./src/* ./include/* | entr -rc sh -c "make && ./build/bin/bomb64"
-CC = clang++
+CC = clang++-11
 
-CFLAGS := -Wall -g -lglut -lGLU -lGL -lm -lSDL2
+CFLAGS := -Wall -g -lglut -lGLU -lGL -lm -lSDL2 -Iextern/glm
 
 SRC_DIR = src
 INCLUDE_DIR = include
@@ -14,7 +14,6 @@ MAIN = $(BIN_DIR)/bomb64
 
 .PHONY: clean
 
-$(shell mkdir -p $(shell cd src; find . -type d | sed 's/\.\///' ))
 
 all: $(MAIN)
 	@echo Compilation has been completed successfully.
