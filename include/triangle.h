@@ -1,5 +1,5 @@
-#ifndef RASTERISER_FACE_H
-#define RASTERISER_FACE_H
+#ifndef TRIANGLE_H
+#define TRIANGLE_H
 
 #include <array>
 

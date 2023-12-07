@@ -1,12 +1,11 @@
 #include "../include/objloader.h"
-#ifndef TINYOBJLOADER_IMPLEMENTATION
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "../include/tiny_obj_loader.h"
-#endif
 
 bool loadOBJ(const char *path, std::vector<glm::vec3> &out_vertices,
              std::vector<glm::vec2> &out_uvs,
              std::vector<glm::vec3> &out_normals,
+             std::vector<material_t> &out_materials,
              std::vector<Triangle> &out_triangles) {
   std::string inputfile = path;
   tinyobj::ObjReaderConfig reader_config;
@@ -30,13 +29,7 @@ bool loadOBJ(const char *path, std::vector<glm::vec3> &out_vertices,
 
   auto &attrib = reader.GetAttrib();
   auto &shapes = reader.GetShapes();
-  // auto &materials = reader.GetMaterials();
-
-  std::cout << "Number of vertices: " << attrib.vertices.size() / 3
-            << std::endl;
-  std::cout << "Number of normals: " << attrib.normals.size() / 3 << std::endl;
-  std::cout << "Number of texcoords: " << attrib.texcoords.size() / 2
-            << std::endl;
+  auto &materials = reader.GetMaterials();
 
   out_vertices.reserve(attrib.vertices.size() / 3);
 
@@ -58,6 +51,14 @@ bool loadOBJ(const char *path, std::vector<glm::vec3> &out_vertices,
     out_normals.emplace_back(attrib.normals[norm_start],
                              attrib.normals[norm_start + 1],
                              attrib.normals[norm_start + 2]);
+  }
+
+  out_materials.reserve(materials.size());
+
+  for (auto material : materials) {
+    out_materials.push_back(Material(material.ambient, material.diffuse,
+                                     material.specular, material.emission,
+                                     material.shininess));
   }
 
   for (auto shape = shapes.begin(); shape < shapes.end(); ++shape) {

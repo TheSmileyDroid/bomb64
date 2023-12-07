@@ -7,14 +7,14 @@ SRC_DIR = src
 INCLUDE_DIR = include
 BUILD_DIR = build
 BIN_DIR = $(BUILD_DIR)/bin
-
-SRCS = $(wildcard $(SRC_DIR)/*.cpp)
-
-OBJS = $(patsubst $(SRC_DIR)/%.cpp,$(BUILD_DIR)/%.o,$(SRCS))
+SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
+OBJS := $(SRCS:$(SRC_DIR)/%.cpp=$(BUILD_DIR)/%.o)
 
 MAIN = $(BIN_DIR)/bomb64
 
 .PHONY: clean
+
+$(shell mkdir -p $(shell cd src; find . -type d | sed 's/\.\///' ))
 
 all: $(MAIN)
 	@echo Compilation has been completed successfully.
@@ -24,8 +24,7 @@ $(MAIN): $(OBJS)
 	$(CC) $(CFLAGS) -I$(INCLUDE_DIR) -o $(MAIN) $(OBJS)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAGS) -I$(INCLUDE_DIR) -c $< -o $@
 
 clean:
-	$(RM) $(BIN_DIR)/* $(SRC_DIR)/*.o *~ $(MAIN)
+	$(RM) $(BIN_DIR)/* $(SRC_DIR)/**.o *~ $(MAIN)

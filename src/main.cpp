@@ -20,9 +20,9 @@ using namespace glm;
 
 #include "../include/camera.h"
 #include "../include/delta.h"
+#include "../include/entities/player.h"
 #include "../include/ground.h"
 #include "../include/lighting.h"
-#include "../include/objloader.h"
 
 #include <glm/glm.hpp>
 #include <vector>
@@ -40,6 +40,8 @@ SDL_GLContext gContext;
 
 int windowWidth = 640;
 int windowHeight = 480;
+
+Player player;
 
 void quit(int status) {
   SDL_Quit();
@@ -115,6 +117,9 @@ bool init(void) {
     }
   }
 
+  player = Player();
+  player.load_model();
+
   return success;
 }
 
@@ -148,212 +153,6 @@ static void process_events(void) {
   }
 }
 
-void cube(void) {
-  GLfloat shininess;   // Coeficiente de reflexão da luz ambiente k_a
-  GLfloat diffuse[4];  // Coeficiente de reflexão difusa k_d
-  GLfloat specular[4]; // Coeficiente de reflexão especular k_s
-
-  shininess = 65.0;
-  diffuse[0] = 0.65;
-  diffuse[1] = 0.0;
-  diffuse[2] = 0.0;
-  diffuse[3] = 1.0;
-  specular[0] = 1.0;
-  specular[1] = 1.0;
-  specular[2] = 1.0;
-  specular[3] = 1.0;
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-  glMaterialf(GL_FRONT, GL_SHININESS, shininess);
-
-  glBegin(GL_POLYGON);
-  glNormal3f(-0.5, -0.5, 0.5);
-  glVertex3f(-0.5, -0.5, 0.5);
-  glNormal3f(0.5, -0.5, 0.5);
-  glVertex3f(0.5, -0.5, 0.5);
-  glNormal3f(0.5, 0.5, 0.5);
-  glVertex3f(0.5, 0.5, 0.5);
-  glNormal3f(-0.5, 0.5, 0.5);
-  glVertex3f(-0.5, 0.5, 0.5);
-  glEnd();
-
-  shininess = 65.0;
-  diffuse[0] = 0.0;
-  diffuse[1] = 0.65;
-  diffuse[2] = 0.0;
-  diffuse[3] = 1.0;
-  specular[0] = 1.0;
-  specular[1] = 1.0;
-  specular[2] = 1.0;
-  specular[3] = 1.0;
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-  glMaterialf(GL_FRONT, GL_SHININESS, shininess);
-
-  glBegin(GL_POLYGON);
-  glNormal3f(0.5, 0.5, 0.5);
-  glVertex3f(0.5, 0.5, 0.5);
-  glNormal3f(0.5, -0.5, 0.5);
-  glVertex3f(0.5, -0.5, 0.5);
-  glNormal3f(0.5, -0.5, -0.5);
-  glVertex3f(0.5, -0.5, -0.5);
-  glNormal3f(0.5, 0.5, -0.5);
-  glVertex3f(0.5, 0.5, -0.5);
-  glEnd();
-
-  shininess = 65.0;
-  diffuse[0] = 0.0;
-  diffuse[1] = 0.0;
-  diffuse[2] = 0.65;
-  diffuse[3] = 1.0;
-  specular[0] = 1.0;
-  specular[1] = 1.0;
-  specular[2] = 1.0;
-  specular[3] = 1.0;
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-  glMaterialf(GL_FRONT, GL_SHININESS, shininess);
-
-  glBegin(GL_POLYGON);
-  glNormal3f(0.5, -0.5, 0.5);
-  glVertex3f(0.5, -0.5, 0.5);
-  glNormal3f(-0.5, -0.5, 0.5);
-  glVertex3f(-0.5, -0.5, 0.5);
-  glNormal3f(-0.5, -0.5, -0.5);
-  glVertex3f(-0.5, -0.5, -0.5);
-  glNormal3f(0.5, -0.5, -0.5);
-  glVertex3f(0.5, -0.5, -0.5);
-  glEnd();
-
-  shininess = 65.0;
-  diffuse[0] = 0.65;
-  diffuse[1] = 0.65;
-  diffuse[2] = 0.0;
-  diffuse[3] = 1.0;
-  specular[0] = 1.0;
-  specular[1] = 1.0;
-  specular[2] = 1.0;
-  specular[3] = 1.0;
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-  glMaterialf(GL_FRONT, GL_SHININESS, shininess);
-
-  glBegin(GL_POLYGON);
-  glNormal3f(-0.5, 0.5, 0.5);
-  glVertex3f(-0.5, 0.5, 0.5);
-  glNormal3f(0.5, 0.5, 0.5);
-  glVertex3f(0.5, 0.5, 0.5);
-  glNormal3f(0.5, 0.5, -0.5);
-  glVertex3f(0.5, 0.5, -0.5);
-  glNormal3f(-0.5, 0.5, -0.5);
-  glVertex3f(-0.5, 0.5, -0.5);
-  glEnd();
-
-  shininess = 65.0;
-  diffuse[0] = 0.0;
-  diffuse[1] = 0.65;
-  diffuse[2] = 0.65;
-  diffuse[3] = 1.0;
-  specular[0] = 1.0;
-  specular[1] = 1.0;
-  specular[2] = 1.0;
-  specular[3] = 1.0;
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-  glMaterialf(GL_FRONT, GL_SHININESS, shininess);
-
-  glBegin(GL_POLYGON);
-  glNormal3f(-0.5, -0.5, -0.5);
-  glVertex3f(-0.5, -0.5, -0.5);
-  glNormal3f(-0.5, 0.5, -0.5);
-  glVertex3f(-0.5, 0.5, -0.5);
-  glNormal3f(0.5, 0.5, -0.5);
-  glVertex3f(0.5, 0.5, -0.5);
-  glNormal3f(0.5, -0.5, -0.5);
-  glVertex3f(0.5, -0.5, -0.5);
-  glEnd();
-
-  shininess = 65.0;
-  diffuse[0] = 0.65;
-  diffuse[1] = 0.65;
-  diffuse[2] = 0.65;
-  diffuse[3] = 1.0;
-  specular[0] = 1.0;
-  specular[1] = 1.0;
-  specular[2] = 1.0;
-  specular[3] = 1.0;
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-  glMaterialf(GL_FRONT, GL_SHININESS, shininess);
-
-  glBegin(GL_POLYGON);
-  glNormal3f(-0.5, 0.5, -0.5);
-  glVertex3f(-0.5, 0.5, -0.5);
-  glNormal3f(-0.5, -0.5, -0.5);
-  glVertex3f(-0.5, -0.5, -0.5);
-  glNormal3f(-0.5, -0.5, 0.5);
-  glVertex3f(-0.5, -0.5, 0.5);
-  glNormal3f(-0.5, 0.5, 0.5);
-  glVertex3f(-0.5, 0.5, 0.5);
-  glEnd();
-}
-
-std::vector<glm::vec3> vertices;
-std::vector<glm::vec2> uvs;
-std::vector<glm::vec3> normals;
-std::vector<glm::vec3> colors;
-std::vector<Triangle> triangles;
-
-bool load_model(void) {
-  std::cout << "Loading model..." << std::endl;
-  bool res = loadOBJ("assets/jorge.obj", vertices, uvs, normals, triangles);
-
-  std::cout << "Vertices: " << vertices.size() << std::endl;
-  std::cout << "UVs: " << uvs.size() << std::endl;
-  std::cout << "Normals: " << normals.size() << std::endl;
-
-  return res;
-}
-
-void draw_model(void) {
-  GLfloat shininess = 50.0;
-  GLfloat diffuse[4];
-  GLfloat specular[4];
-  diffuse[0] = 0.2;
-  diffuse[1] = 0.65;
-  diffuse[2] = 0.2;
-  diffuse[3] = 1.0;
-  specular[0] = 1.0;
-  specular[1] = 1.0;
-  specular[2] = 1.0;
-  specular[3] = 1.0;
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-  glMaterialf(GL_FRONT, GL_SHININESS, shininess);
-  glBegin(GL_TRIANGLES);
-  for (auto triangle = triangles.begin(); triangle != triangles.end();
-       ++triangle) {
-    glNormal3f(normals[triangle->normals[0]].x, normals[triangle->normals[0]].y,
-               normals[triangle->normals[0]].z);
-    glVertex3f(vertices[triangle->vertices[0]].x,
-               vertices[triangle->vertices[0]].y,
-               vertices[triangle->vertices[0]].z);
-
-    glNormal3f(normals[triangle->normals[1]].x, normals[triangle->normals[1]].y,
-               normals[triangle->normals[1]].z);
-    glVertex3f(vertices[triangle->vertices[1]].x,
-               vertices[triangle->vertices[1]].y,
-               vertices[triangle->vertices[1]].z);
-
-    glNormal3f(normals[triangle->normals[2]].x, normals[triangle->normals[2]].y,
-               normals[triangle->normals[2]].z);
-    glVertex3f(vertices[triangle->vertices[2]].x,
-               vertices[triangle->vertices[2]].y,
-               vertices[triangle->vertices[2]].z);
-  }
-  glEnd();
-}
-
 void displayFunc(void) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -368,14 +167,9 @@ void displayFunc(void) {
   glPopMatrix();
 
   glPushMatrix();
-  glTranslatef(0.0, 0.0, 5.0);
-  cube();
-  glPopMatrix();
-
-  glPushMatrix();
   glTranslatef(0.0, 0.0, -5.0);
   glRotatef(67.0, 0.0, 1.0, 0.0);
-  draw_model();
+  player.draw();
   glPopMatrix();
 
   lighting();
@@ -386,11 +180,6 @@ void displayFunc(void) {
 int main(int argc, char *argv[]) {
   glutInit(&argc, argv);
   init();
-  bool res = load_model();
-  if (!res) {
-    printf("Error loading model!\n");
-    quit(1);
-  }
 
   while (true) {
     deltaUpdate();
