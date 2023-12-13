@@ -1,13 +1,19 @@
 #include "../include/delta.h"
-#include <stdio.h>
 
-int delta = 0;
+Uint64 NOW = 0;
+Uint64 LAST = 0;
+double deltaTime = 0;
 
-void deltaInit(void) { delta = 0; }
+void deltaInit(void) {
+  NOW = SDL_GetPerformanceCounter();
+  LAST = 0;
+  deltaTime = 0;
+}
 
 void deltaUpdate(void) {
-  static int last = 0;
-  int now = SDL_GetTicks();
-  delta = now - last;
-  last = now;
+  LAST = NOW;
+  NOW = SDL_GetPerformanceCounter();
+
+  deltaTime =
+      (double)((NOW - LAST) * 1000 / (double)SDL_GetPerformanceFrequency());
 }

@@ -1,6 +1,7 @@
 /**
  * Nome: Gabriel Henrique Silva RA: 156514
  */
+#include <memory>
 #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -11,29 +12,19 @@
 #include <SDL2/SDL_version.h>
 #include <SDL2/SDL_video.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 using namespace glm;
 
 #include "../include/camera.h"
 #include "../include/delta.h"
-#include "../include/entities/player.h"
-#include "../include/ground.h"
+#include "../include/entities/Cadeira.h"
+#include "../include/entities/Ground.h"
+#include "../include/entities/Player.h"
 #include "../include/lighting.h"
-
-#include <glm/glm.hpp>
-#include <vector>
-
-GLfloat light0_pos[] = {20.0f, 20.0f, 60.0f, 1.0f};
-GLfloat white[] = {1.0f, 1.0f, 1.0f, 1.0f};
-GLfloat black[] = {0.0f, 0.2f, 0.0f, 1.0f};
-
-GLdouble cameraX = 0.0f;
-GLdouble cameraY = 0.0f;
-GLdouble cameraZ = 24.0f;
 
 SDL_Window *gWindow = NULL;
 SDL_GLContext gContext;
@@ -41,7 +32,8 @@ SDL_GLContext gContext;
 int windowWidth = 640;
 int windowHeight = 480;
 
-Player player;
+Player *player;
+std::vector<Entity *> entities;
 
 void quit(int status) {
   SDL_Quit();
@@ -52,17 +44,19 @@ bool initGL(void) {
   bool success = true;
   GLenum error = GL_NO_ERROR;
 
-  glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // define a cor de fundo
-  glEnable(GL_DEPTH_TEST);              // habilita o teste de profundidade
-  glMatrixMode(GL_MODELVIEW);           // define que a matrix é a model view
-  glLoadIdentity();                     // carrega a matrix de identidade
-  gluLookAt(4.0, 2.0, 1.0,              // posição da câmera
-            0.0, 0.0, 0.0,              // para onde a câmera aponta
-            0.0, 1.0, 0.0);             // vetor view-up
+  glClearColor(0.5f, 0.5f, 0.9f, 0.f);
+  glEnable(GL_DEPTH_TEST); // habilita o teste de profundidade
+  glDepthFunc(GL_LEQUAL);  // tipo de teste de profundidade a ser feito
+  glShadeModel(GL_SMOOTH); // tipo de "suavização"
+  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // correcao de perspectiva
+  glEnable(GL_TEXTURE_2D);                           // habilita texturas
+  glMatrixMode(GL_MODELVIEW); // define que a matrix é a model view
+  glLoadIdentity();           // carrega a matrix de identidade
 
   glMatrixMode(GL_PROJECTION); // define que a matrix é a de projeção
   glLoadIdentity();            // carrega a matrix de identidade
-  gluPerspective(90.0, 1.0, 0.1, 1024.0); // define a projeção perspectiva
+  gluPerspective(90.0, (GLfloat)windowWidth / (GLfloat)windowHeight, 1.0,
+                 1024.0); // define a projeção perspectiva
   glViewport(0, 0, windowWidth, windowHeight); // define o viewport
 
   error = glGetError();
@@ -70,8 +64,6 @@ bool initGL(void) {
     printf("Error initializing OpenGL! %s\n", gluErrorString(error));
     success = false;
   }
-
-  glClearColor(0.5f, 0.5f, 0.9f, 0.f);
 
   error = glGetError();
   if (error != GL_NO_ERROR) {
@@ -92,7 +84,7 @@ bool init(void) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 
     gWindow = SDL_CreateWindow(
-        "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+        "Bomb 64", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
         windowWidth, windowHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if (gWindow == NULL) {
       printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
@@ -117,8 +109,11 @@ bool init(void) {
     }
   }
 
-  player = Player();
-  player.load_model();
+  player = new Player();
+
+  entities.push_back(new Ground());
+  entities.push_back(player);
+  entities.push_back(new Cadeira());
 
   return success;
 }
@@ -135,13 +130,12 @@ static void process_events(void) {
 
     switch (event.type) {
     case SDL_KEYDOWN:
-      cameraMovementKeyDown(&event.key.keysym);
-      break;
-    case SDL_KEYUP:
-      cameraMovementKeyUp(&event.key.keysym);
-      break;
-    case SDL_MOUSEMOTION:
-      cameraRotation(event.motion.xrel, event.motion.yrel);
+      switch (event.key.keysym.sym) {
+      case SDLK_ESCAPE:
+        SDL_SetWindowGrab(gWindow, SDL_FALSE);
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        break;
+      }
       break;
     case SDL_QUIT:
       quit(0);
@@ -150,56 +144,58 @@ static void process_events(void) {
       grab_mouse();
       break;
     }
+
+    player->input(&event);
   }
 }
 
-void displayFunc(void) {
+void drawScene(void) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
+  player->camera();
 
-  camera();
+  for (auto entity : entities) {
+    entity->draw();
+  }
 
-  glPushMatrix();
-  glTranslatef(0.0, -10.0, 0.0);
-  GLfloat shininess = 50.0;
-  GLfloat diffuse[4];
-  GLfloat specular[4];
-  diffuse[0] = 0.2;
-  diffuse[1] = 0.2;
-  diffuse[2] = 0.2;
-  diffuse[3] = 1.0;
-  specular[0] = 1.0;
-  specular[1] = 1.0;
-  specular[2] = 1.0;
-  specular[3] = 1.0;
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, diffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
-	glMaterialf(GL_FRONT, GL_SHININESS, shininess);
-  ground();
-  glPopMatrix();
-
-  glPushMatrix();
-  glTranslatef(0.0, 0.0, -5.0);
-  glRotatef(67.0, 0.0, 1.0, 0.0);
-  player.draw();
-  glPopMatrix();
-
-  lighting();
-
-  glFlush();
+  // Draw AABB for debugging
+  for (auto entity : entities) {
+    glPushMatrix();
+    glTranslatef(entity->position.x, entity->position.y, entity->position.z);
+    glScalef(entity->aabb->max.x - entity->aabb->min.x,
+             entity->aabb->max.y - entity->aabb->min.y,
+             entity->aabb->max.z - entity->aabb->min.z);
+    glutWireCube(1.0);
+    glPopMatrix();
+  }
 }
 
 int main(int argc, char *argv[]) {
   glutInit(&argc, argv);
   init();
+  deltaInit();
+
+  glClearColor(0.5f, 0.5f, 0.9f, 0.f);
+
+  Uint32 lastFrameTime = SDL_GetTicks();
+  float delta = 0.0f;
+  float fps = 0.0f;
+  (void)fps;
 
   while (true) {
+    Uint32 currentFrameTime = SDL_GetTicks();
+    delta = (currentFrameTime - lastFrameTime) / 1000.0f;
+    fps = 1.0f / delta;
+    lastFrameTime = currentFrameTime;
+
     deltaUpdate();
+    lighting();
     process_events();
-    cameraUpdate();
-    displayFunc();
+    player->update();
+    drawScene();
+
     SDL_GL_SwapWindow(gWindow);
   }
 

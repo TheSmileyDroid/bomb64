@@ -85,7 +85,7 @@ void cameraMovementKeyUp(SDL_Keysym *key) {
 }
 
 void cameraUpdate(void) {
-  float speed = 0.01f * delta;
+  float speed = 0.01f * deltaTime;
   if (forward) {
     camera_pos[0] += camera_dir[0] * speed;
     camera_pos[1] += camera_dir[1] * speed;
