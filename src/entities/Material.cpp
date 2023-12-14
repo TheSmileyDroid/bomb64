@@ -1,3 +1,9 @@
+/*
+ * Author: Gabriel Henrique Silva
+ * RA: 156514
+ * Email: gabriel.henrique07@unifesp.br
+ */
+
 #include "../../include/entities/Material.h"
 
 Material::Material(tinyobj::material_t material) {

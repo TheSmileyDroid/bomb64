@@ -1,3 +1,9 @@
+/*
+ * Author: Gabriel Henrique Silva
+ * RA: 156514
+ * Email: gabriel.henrique07@unifesp.br
+ */
+
 #include "../../include/entities/InputHandler.h"
 
 void InputHandler::handleInput(IPlayer &player, SDL_Event *event) {

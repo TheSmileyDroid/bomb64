@@ -1,3 +1,9 @@
+/*
+ * Author: Gabriel Henrique Silva
+ * RA: 156514
+ * Email: gabriel.henrique07@unifesp.br
+ */
+
 #include "../include/lighting.h"
 
 GLfloat light0_pos[] = {20.0f, 20.0f, 30.0f, 1.0f};

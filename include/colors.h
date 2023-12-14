@@ -1,3 +1,9 @@
+/*
+ * Author: Gabriel Henrique Silva
+ * RA: 156514
+ * Email: gabriel.henrique07@unifesp.br
+ */
+
 #ifndef COLORS_H
 #define COLORS_H
 

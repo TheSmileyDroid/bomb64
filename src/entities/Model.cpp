@@ -1,3 +1,9 @@
+/*
+ * Author: Gabriel Henrique Silva
+ * RA: 156514
+ * Email: gabriel.henrique07@unifesp.br
+ */
+
 #include "../../include/entities/Model.h"
 
 std::map<std::string, GLuint> textures;

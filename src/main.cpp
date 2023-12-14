@@ -1,6 +1,9 @@
-/**
- * Nome: Gabriel Henrique Silva RA: 156514
+/*
+ * Author: Gabriel Henrique Silva
+ * RA: 156514
+ * Email: gabriel.henrique07@unifesp.br
  */
+
 #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 #include <GL/glu.h>

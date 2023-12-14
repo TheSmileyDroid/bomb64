@@ -1,3 +1,9 @@
+/*
+ * Author: Gabriel Henrique Silva
+ * RA: 156514
+ * Email: gabriel.henrique07@unifesp.br
+ */
+
 #include "../include/objloader.h"
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "../include/tiny_obj_loader.h"
