@@ -1,14 +1,32 @@
 #include "../../include/entities/Model.h"
 
+std::map<std::string, GLuint> textures;
+
 Model::Model(const char *filename) {
   this->filename = filename;
   load_model();
+
+  for (auto material = materials.begin(); material != materials.end();
+       ++material) {
+    if (material->diffuse_texname != "") {
+      std::string textureFilename =
+          std::string("assets/") + material->diffuse_texname;
+
+      if (textures.find(textureFilename) != textures.end()) {
+        texture = textures[textureFilename];
+        break;
+      }
+      load_texture(textureFilename.c_str());
+      break;
+    }
+  }
 }
 
 Model::Model() { this->filename = ""; }
 
 bool Model::load_model() {
-  bool res = loadOBJ(filename, vertices, uvs, normals, materials, triangles);
+  bool res =
+      loadOBJ(filename, vertices, uvs, normals, materials, triangles, colors);
   if (!res) {
     printf("Error loading model\n");
   } else {
@@ -17,7 +35,26 @@ bool Model::load_model() {
   return res;
 }
 
+void Model::load_texture(const char *filename) {
+  SDL_Surface *surface = SDL_LoadBMP(filename);
+  if (surface == NULL) {
+    printf("Error loading texture\n");
+    return;
+  }
+  glGenTextures(1, &texture);
+  glBindTexture(GL_TEXTURE_2D, texture);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, surface->w, surface->h, 0, GL_BGR,
+               GL_UNSIGNED_BYTE, surface->pixels);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  printf("Texture %s loaded with id %d\n", filename, texture);
+  textures[filename] = texture;
+}
+
 void Model::draw() {
+  if (texture != 0) {
+    glBindTexture(GL_TEXTURE_2D, texture);
+  }
   glBegin(GL_TRIANGLES);
   for (auto triangle = triangles.begin(); triangle != triangles.end();
        ++triangle) {
@@ -48,23 +85,16 @@ void Model::draw() {
     glMaterialfv(GL_FRONT, GL_EMISSION, emission);
     glMaterialfv(GL_FRONT, GL_SPECULAR, specular);
     glMaterialf(GL_FRONT, GL_SHININESS, shininess);
-    glNormal3f(normals[triangle->normals[0]].x, normals[triangle->normals[0]].y,
-               normals[triangle->normals[0]].z);
-    glVertex3f(vertices[triangle->vertices[0]].x,
-               vertices[triangle->vertices[0]].y,
-               vertices[triangle->vertices[0]].z);
 
-    glNormal3f(normals[triangle->normals[1]].x, normals[triangle->normals[1]].y,
-               normals[triangle->normals[1]].z);
-    glVertex3f(vertices[triangle->vertices[1]].x,
-               vertices[triangle->vertices[1]].y,
-               vertices[triangle->vertices[1]].z);
-
-    glNormal3f(normals[triangle->normals[2]].x, normals[triangle->normals[2]].y,
-               normals[triangle->normals[2]].z);
-    glVertex3f(vertices[triangle->vertices[2]].x,
-               vertices[triangle->vertices[2]].y,
-               vertices[triangle->vertices[2]].z);
+    for (int i = 0; i < 3; i++) {
+      glTexCoord2f(uvs[triangle->uvs[i]].x, uvs[triangle->uvs[i]].y);
+      glNormal3f(normals[triangle->normals[i]].x,
+                 normals[triangle->normals[i]].y,
+                 normals[triangle->normals[i]].z);
+      glVertex3f(vertices[triangle->vertices[i]].x,
+                 vertices[triangle->vertices[i]].y,
+                 vertices[triangle->vertices[i]].z);
+    }
   }
   glEnd();
 }

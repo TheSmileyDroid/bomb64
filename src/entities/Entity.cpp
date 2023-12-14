@@ -1,5 +1,30 @@
 #include "../../include/entities/Entity.h"
 
+std::vector<Entity *> entities;
+
+bool AABB::checkCollision(const AABB &other) const {
+  if (entity != nullptr && other.entity != nullptr &&
+      entity->name == other.entity->name) {
+    return false;
+  }
+  AABB a = translate(entity->position);
+  AABB b = other.translate(other.entity->position);
+
+  return (a.max.x >= b.min.x && a.min.x <= b.max.x) &&
+         (a.max.y >= b.min.y && a.min.y <= b.max.y) &&
+         (a.max.z >= b.min.z && a.min.z <= b.max.z);
+}
+
+bool AABB::checkCollision(const glm::vec3 &point) const {
+  return (point.x >= min.x && point.x <= max.x) &&
+         (point.y >= min.y && point.y <= max.y) &&
+         (point.z >= min.z && point.z <= max.z);
+}
+
+glm::vec3 AABB::getGlobalCenter() const {
+  return entity->position + getCenter();
+}
+
 Entity::Entity() {
   position = {0.0, 0.0, 0.0};
   dir = {0.0, 0.0, 1.0};

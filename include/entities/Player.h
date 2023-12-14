@@ -30,6 +30,8 @@ public:
   void draw() override;
   void rotateMotion(int motionX, int motionY) override;
   void camera();
+  bool willCollide(glm::vec3 position);
+  bool isOnGround();
   InputHandler *input_handler;
 
   double speed;

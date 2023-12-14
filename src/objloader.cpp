@@ -6,7 +6,8 @@ bool loadOBJ(const char *path, std::vector<glm::vec3> &out_vertices,
              std::vector<glm::vec2> &out_uvs,
              std::vector<glm::vec3> &out_normals,
              std::vector<material_t> &out_materials,
-             std::vector<Triangle> &out_triangles) {
+             std::vector<Triangle> &out_triangles,
+             std::vector<glm::vec3> &out_colors) {
   std::string inputfile = path;
   tinyobj::ObjReaderConfig reader_config;
   reader_config.mtl_search_path = "./assets/";
@@ -20,8 +21,6 @@ bool loadOBJ(const char *path, std::vector<glm::vec3> &out_vertices,
     }
     exit(1);
   }
-
-  std::cout << "TinyObjReader: " << inputfile << std::endl;
 
   if (!reader.Warning().empty()) {
     std::cout << "TinyObjReader: " << reader.Warning();
@@ -53,12 +52,17 @@ bool loadOBJ(const char *path, std::vector<glm::vec3> &out_vertices,
                              attrib.normals[norm_start + 2]);
   }
 
+  for (size_t color_start = 0; color_start < attrib.colors.size();
+       color_start += 3) {
+    out_colors.emplace_back(attrib.colors[color_start],
+                            attrib.colors[color_start + 1],
+                            attrib.colors[color_start + 2]);
+  }
+
   out_materials.reserve(materials.size());
 
   for (auto material : materials) {
-    out_materials.push_back(Material(material.ambient, material.diffuse,
-                                     material.specular, material.emission,
-                                     material.shininess));
+    out_materials.push_back(Material(material));
   }
 
   for (auto shape = shapes.begin(); shape < shapes.end(); ++shape) {

@@ -1,7 +1,7 @@
 #ifndef OBJLOADER_H
 #define OBJLOADER_H
 
-#include "material.h"
+#include "entities/Material.h"
 #include "triangle.h"
 #include <array>
 #include <cstring>
@@ -14,6 +14,7 @@ bool loadOBJ(const char *path, std::vector<glm::vec3> &out_vertices,
              std::vector<glm::vec2> &out_uvs,
              std::vector<glm::vec3> &out_normals,
              std::vector<material_t> &out_materials,
-             std::vector<Triangle> &out_triangles);
+             std::vector<Triangle> &out_triangles,
+             std::vector<glm::vec3> &out_colors);
 
 #endif

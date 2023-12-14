@@ -1,7 +1,6 @@
 /**
  * Nome: Gabriel Henrique Silva RA: 156514
  */
-#include <memory>
 #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -12,7 +11,6 @@
 #include <SDL2/SDL_version.h>
 #include <SDL2/SDL_video.h>
 #include <glm/glm.hpp>
-#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,7 +19,9 @@ using namespace glm;
 
 #include "../include/camera.h"
 #include "../include/delta.h"
+#include "../include/entities/Brick.h"
 #include "../include/entities/Cadeira.h"
+#include "../include/entities/Entity.h"
 #include "../include/entities/Ground.h"
 #include "../include/entities/Player.h"
 #include "../include/lighting.h"
@@ -33,9 +33,16 @@ int windowWidth = 640;
 int windowHeight = 480;
 
 Player *player;
-std::vector<Entity *> entities;
+
+bool running = true;
+
+bool freeCamera = false;
 
 void quit(int status) {
+  for (Entity *entity : entities) {
+    delete entity;
+  }
+  entities.clear();
   SDL_Quit();
   exit(status);
 }
@@ -49,7 +56,9 @@ bool initGL(void) {
   glDepthFunc(GL_LEQUAL);  // tipo de teste de profundidade a ser feito
   glShadeModel(GL_SMOOTH); // tipo de "suavização"
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST); // correcao de perspectiva
-  glEnable(GL_TEXTURE_2D);                           // habilita texturas
+  glEnable(GL_TEXTURE_2D);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  // habilita texturas
   glMatrixMode(GL_MODELVIEW); // define que a matrix é a model view
   glLoadIdentity();           // carrega a matrix de identidade
 
@@ -85,7 +94,8 @@ bool init(void) {
 
     gWindow = SDL_CreateWindow(
         "Bomb 64", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-        windowWidth, windowHeight, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+        windowWidth, windowHeight,
+        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     if (gWindow == NULL) {
       printf("Window could not be created! SDL Error: %s\n", SDL_GetError());
       success = false;
@@ -114,6 +124,11 @@ bool init(void) {
   entities.push_back(new Ground());
   entities.push_back(player);
   entities.push_back(new Cadeira());
+  entities.push_back(new Brick(glm::vec3(3.0f, 5.0f, 5.0f)));
+  entities.push_back(new Brick(glm::vec3(15.0f, 6.0f, 16.0f)));
+  entities.push_back(new Brick(glm::vec3(25.0f, 8.0f, 3.0f)));
+  entities.push_back(new Brick(glm::vec3(13.0f, 10.0f, 13.0f)));
+  entities.push_back(new Brick(glm::vec3(5.0f, 12.0f, 13.0f)));
 
   return success;
 }
@@ -129,15 +144,35 @@ static void process_events(void) {
   while (SDL_PollEvent(&event)) {
 
     switch (event.type) {
+    case SDL_WINDOWEVENT:
+      if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+        printf("Window %d resized to %dx%d\n", event.window.windowID,
+               event.window.data1, event.window.data2);
+        windowWidth = event.window.data1;
+        windowHeight = event.window.data2;
+        glMatrixMode(GL_MODELVIEW); // define que a matrix é a model view
+        glLoadIdentity();           // carrega a matrix de identidade
+
+        glMatrixMode(GL_PROJECTION); // define que a matrix é a de projeção
+        glLoadIdentity();            // carrega a matrix de identidade
+        gluPerspective(90.0, (GLfloat)windowWidth / (GLfloat)windowHeight, 1.0,
+                       1024.0); // define a projeção perspectiva
+        glViewport(0, 0, windowWidth, windowHeight); // define o viewport
+      }
+      break;
     case SDL_KEYDOWN:
       switch (event.key.keysym.sym) {
       case SDLK_ESCAPE:
         SDL_SetWindowGrab(gWindow, SDL_FALSE);
         SDL_SetRelativeMouseMode(SDL_FALSE);
         break;
+      case SDLK_f:
+        freeCamera = !freeCamera;
+        break;
       }
       break;
     case SDL_QUIT:
+    case SDL_WINDOWEVENT_CLOSE:
       quit(0);
       break;
     case SDL_MOUSEBUTTONDOWN:
@@ -145,7 +180,21 @@ static void process_events(void) {
       break;
     }
 
-    player->input(&event);
+    if (!freeCamera) {
+      player->input(&event);
+    } else {
+      switch (event.type) {
+      case SDL_MOUSEMOTION:
+        cameraRotation(event.motion.xrel, event.motion.yrel);
+        break;
+      case SDL_KEYDOWN:
+        cameraMovementKeyDown(&event.key.keysym);
+        break;
+      case SDL_KEYUP:
+        cameraMovementKeyUp(&event.key.keysym);
+        break;
+      }
+    }
   }
 }
 
@@ -154,7 +203,10 @@ void drawScene(void) {
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  player->camera();
+  if (!freeCamera)
+    player->camera();
+  else
+    camera();
 
   for (auto entity : entities) {
     entity->draw();
@@ -163,7 +215,9 @@ void drawScene(void) {
   // Draw AABB for debugging
   for (auto entity : entities) {
     glPushMatrix();
-    glTranslatef(entity->position.x, entity->position.y, entity->position.z);
+    glTranslatef(entity->aabb->getGlobalCenter().x,
+                 entity->aabb->getGlobalCenter().y,
+                 entity->aabb->getGlobalCenter().z);
     glScalef(entity->aabb->max.x - entity->aabb->min.x,
              entity->aabb->max.y - entity->aabb->min.y,
              entity->aabb->max.z - entity->aabb->min.z);
@@ -193,7 +247,11 @@ int main(int argc, char *argv[]) {
     deltaUpdate();
     lighting();
     process_events();
-    player->update();
+    if (!freeCamera)
+      player->update();
+    else
+      cameraUpdate();
+
     drawScene();
 
     SDL_GL_SwapWindow(gWindow);

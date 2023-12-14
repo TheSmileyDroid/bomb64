@@ -17,14 +17,14 @@ Player::Player() {
   up = {0.0f, 1.0f, 0.0f};
   right = {1.0f, 0.0f, 0.0f};
 
-  aabb = new AABB({-1.0, -1.0, -1.0}, {1.0, 1.0, 1.0});
+  aabb = new AABB({-1.0, -0.7, -1.0}, {1.0, 1.7, 1.0}, this);
 
   input_handler = new InputHandler();
 }
 
 void Player::draw() {
   glPushMatrix();
-  glTranslatef(position.x, position.y, position.z);
+  glTranslatef(position.x, position.y - 1, position.z);
   float angle = atan2(dir.z, dir.x) - M_PI / 2.0f;
   glRotatef(-angle * 180.0 / M_PI, 0.0, 1.0, 0.0);
   model->draw();
@@ -41,6 +41,20 @@ glm::vec3 rotateVector(glm::vec3 vector, float angle) {
   rotated_vector.y = vector.y;
   rotated_vector.z = vector.x * sin(angle) + vector.z * cos(angle);
   return rotated_vector;
+}
+
+bool Player::willCollide(glm::vec3 delta) {
+  AABB *aabb = this->aabb;
+  aabb = new AABB(aabb->min + delta, aabb->max + delta, aabb->entity);
+  for (auto entity : entities) {
+    if (entity->name == "Player") {
+      continue;
+    }
+    if (aabb->checkCollision(*entity->aabb)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 void Player::update(void) {
@@ -65,15 +79,20 @@ void Player::update(void) {
   }
   target_velocity.x = move_direction.x * speed * deltaTime;
   target_velocity.z = move_direction.z * speed * deltaTime;
+  target_velocity.y = target_velocity.y - (gravity * deltaTime);
 
-  if (position.y > 0.0) {
-    target_velocity.y = target_velocity.y - (gravity * deltaTime);
-  } else {
-    target_velocity.y = 0.0;
+  if (input_handler->performJump() && isOnGround()) {
+    target_velocity.y = 1.0;
   }
 
-  if (input_handler->performJump() && position.y == 0.0) {
-    target_velocity.y = 1.0;
+  if (willCollide(glm::vec3(target_velocity.x, 0.0f, 0.0f))) {
+    target_velocity.x = 0.0f;
+  }
+  if (willCollide(glm::vec3(0.0f, 0.0f, target_velocity.z))) {
+    target_velocity.z = 0.0f;
+  }
+  if (willCollide(glm::vec3(0.0f, target_velocity.y, 0.0f))) {
+    target_velocity.y = 0.0f;
   }
 
   velocity = target_velocity;
@@ -81,13 +100,22 @@ void Player::update(void) {
   position.x += velocity.x;
   position.y += velocity.y;
   position.z += velocity.z;
-  if (move_direction.x != 0.0f || move_direction.z != 0.0f) {
-    printf("x: %f, y: %f, z: %f\n", position.x, position.y, position.z);
-  }
+}
 
-  if (position.y < 0.0) {
-    position.y = 0.0;
+bool Player::isOnGround() {
+  AABB *aabb = this->aabb;
+  aabb = new AABB(aabb->min, aabb->max, aabb->entity);
+  aabb = new AABB(aabb->min + glm::vec3(0.0f, -0.1f, 0.0f),
+                  aabb->max + glm::vec3(0.0f, -0.1f, 0.0f), aabb->entity);
+  for (auto entity : entities) {
+    if (entity->name == "Player") {
+      continue;
+    }
+    if (aabb->checkCollision(*entity->aabb)) {
+      return true;
+    }
   }
+  return false;
 }
 
 void Player::rotateMotion(int motionX, int motionY) {

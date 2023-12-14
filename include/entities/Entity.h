@@ -3,39 +3,34 @@
 
 #include "Model.h"
 
+class Entity;
+
 class AABB {
 public:
-  AABB(glm::vec3 min, glm::vec3 max) : min(min), max(max) {}
+  AABB(glm::vec3 min, glm::vec3 max, Entity *entity = nullptr)
+      : min(min), max(max), entity(entity) {}
   glm::vec3 min;
   glm::vec3 max;
+  Entity *entity;
 
-  bool checkCollision(const AABB &other) const {
-    return (min.x <= other.max.x && max.x >= other.min.x) &&
-           (min.y <= other.max.y && max.y >= other.min.y) &&
-           (min.z <= other.max.z && max.z >= other.min.z);
-  }
+  bool checkCollision(const AABB &other) const;
 
-  bool checkCollision(const glm::vec3 &point) const {
-    return (point.x >= min.x && point.x <= max.x) &&
-           (point.y >= min.y && point.y <= max.y) &&
-           (point.z >= min.z && point.z <= max.z);
-  }
+  bool checkCollision(const glm::vec3 &point) const;
+
+  glm::vec3 getGlobalCenter() const;
 
   glm::vec3 getCenter() const { return (min + max) / 2.0f; }
 
   glm::vec3 getHalfSize() const { return (max - min) / 2.0f; }
 
-  void translate(const glm::vec3 &translation) {
-    min += translation;
-    max += translation;
+  AABB translate(const glm::vec3 &translation) const {
+    return AABB(min + translation, max + translation);
   }
 
-  void scale(const glm::vec3 &scale) {
-    min *= scale;
-    max *= scale;
+  AABB scale(const glm::vec3 &scale) const {
+    return AABB(min * scale, max * scale);
   }
 };
-
 class Entity {
 public:
   Entity();
@@ -54,5 +49,7 @@ public:
   glm::vec3 up;
   glm::vec3 right;
 };
+
+extern std::vector<Entity *> entities;
 
 #endif // ENTITY_H
